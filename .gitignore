@@ -1,5 +1,6 @@
 
 *.sqlite
 *.csv
+!data/db_matches.csv
 .Rhistory
 .RData
