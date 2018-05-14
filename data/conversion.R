@@ -71,10 +71,16 @@ db_matches[,c("home_corner","away_corner")]         = countVars(db_matches$corne
 # TODO: add players position (understand variables home_player_X...)
 # TODO: add players & teams FIFA attributes (p_attrs/t_attrs)
 
+db_matches$result <- rep(NA, dim(matches)[1])
+db_matches$result[db_matches$home_team_goal > db_matches$away_team_goal] = "Home win"
+db_matches$result[db_matches$home_team_goal < db_matches$away_team_goal] = "Away win"
+db_matches$result[db_matches$home_team_goal == db_matches$away_team_goal] = "Tie"
+db_matches$result <- as.factor(db_matches$result)
+
 db_matches = db_matches[,c("season","stage","date","home_team_goal","away_team_goal","country",
                            "league","home_team","away_team","B365H","B365D","B365A","home_shoton",
                            "away_shoton","home_shotoff","away_shotoff","home_foulcommit",
                            "away_foulcommit","home_card","away_card","home_cross","away_cross",
-                           "home_corner","away_corner")]
+                           "home_corner","away_corner", "result")]
 
 write.csv(db_matches,"data/db_matches.csv")
