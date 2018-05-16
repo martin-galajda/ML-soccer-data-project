@@ -1,4 +1,4 @@
-source('./data/compute_ratios.R')
+source('./feature_extraction/win_ratios.R')
 library(ggplot2)
 
 matches_csv = read.csv('./data/db_matches.csv')
