@@ -6,10 +6,10 @@ make.multinomial.logistic.regression.model <- function(matches) {
     result.mapping[[i]] = levels(matches$result)[i]
   }
   
-  model.multinom <- multinom(result ~ strength.home.team + strength.away.team, data = matches_csv)
+  model.multinom <- multinom(result ~ strength.home.team + strength.away.team, data = matches)
   
   predicted.results <- c()
-  predictions <- predict(model.multinom, newdata=matches_csv, "probs")
+  predictions <- predict(model.multinom, newdata=matches, "probs")
   for (i in 1:dim(predictions)[1]) {
     # get max probability for predicting result
     predicted.value.index <- which(predictions[i,] == max(predictions[i,]))[1]
@@ -21,7 +21,7 @@ make.multinomial.logistic.regression.model <- function(matches) {
     predicted.results <- c(predicted.results, predicted.result)
   }
   
-  prediction.accuracy.multinomial <- mean(matches_csv$result == predicted.results)
+  prediction.accuracy.multinomial <- mean(matches$result == predicted.results)
   
   result = vector(mode="list", length=3)
   result[["model"]] <- model.multinom

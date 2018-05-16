@@ -32,4 +32,4 @@ make.qda.model <- function(matches) {
 }
 
 # Example usage (requires strenght.home.team and strenght.away.team computed inside matches_csv)
-result <- make.qda.model(matches_csv)
+# result <- make.qda.model(matches_csv)
