@@ -25,7 +25,7 @@ This is github repository for project for "Machine learning" class at FIB UPC.
 ## loaders/
 - The purpose of this directory is to define functions which will load different data with different features (used in models). Possibly uses precomputed features which take a bit time to compute.
 
-## feature_extraction
+## feature_extraction/
 - The purpose of this directory is to define everything related to feature extraction.
 - ## precompute_features/
   - this directory contains functions which when executed (source(path) in R) will make sure that cached precomputed features are present in data/ directory
@@ -38,9 +38,12 @@ This is github repository for project for "Machine learning" class at FIB UPC.
     - takes parameter which determines how many matches from past to take into account
     - saves precomputed features in data/ directory
 
-## data
+## data/
 - The purpose of this directory is to contain all data for predicting / analysing
 - Specifically, we store here even precomputed features which are not easily computed on the run (take ~ 5 min)
 
-## data_conversion
+## data_conversion/
 - The purpose of this directory is to contain all code that extracts usable data from the SQLite database.
+
+## validation/
+- The purpose of this directory is to contain all code related to validation and selecting right models/features
