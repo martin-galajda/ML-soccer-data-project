@@ -6,7 +6,7 @@ make.multinomial.logistic.regression.model <- function(matches) {
     result.mapping[[i]] = levels(matches$result)[i]
   }
   
-  model.multinom <- multinom(result ~ strength.home.team + strength.away.team, data = matches)
+  model.multinom <- multinom(result ~ ., data = matches)
   
   predicted.results <- c()
   predictions <- predict(model.multinom, newdata=matches, "probs")

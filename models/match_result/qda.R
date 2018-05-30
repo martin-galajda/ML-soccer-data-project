@@ -6,7 +6,7 @@ make.qda.model <- function(matches) {
     result.mapping[[i]] = levels(matches$result)[i]
   }
   
-  model.qda <- qda(result ~ strength.home.team + strength.away.team, data = matches)
+  model.qda <- qda(result ~ ., data = matches)
   predictions.qda <- predict(model.qda, type="response")
   predictions <- predictions.qda$posterior
   

@@ -6,7 +6,10 @@ make.lda.model <- function(matches) {
     result.mapping[[i]] = levels(matches$result)[i]
   }
   
-  model.lda <- lda(result ~ strength.home.team + strength.away.team, data = matches)
+  model.lda <- lda(
+    result ~ ., 
+    data = matches)
+
   predictions.lda <- predict(model.lda, type="response")
   predictions <- predictions.lda$posterior
   
