@@ -38,7 +38,9 @@ This is github repository for project for "Machine learning" class at FIB UPC.
     - takes parameter which determines how many matches from past to take into account
     - saves precomputed features in data/ directory
 
-
 ## data
 - The purpose of this directory is to contain all data for predicting / analysing
 - Specifically, we store here even precomputed features which are not easily computed on the run (take ~ 5 min)
+
+## data_conversion
+- The purpose of this directory is to contain all code that extracts usable data from the SQLite database.
