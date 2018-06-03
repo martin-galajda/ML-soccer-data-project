@@ -1,12 +1,15 @@
 library(MASS)
 
-make.qda.model <- function(matches) {
-  result.mapping = vector(mode="list", length=length(levels(matches$result)))
-  for (i in 1:length(levels(matches$result))) {
-    result.mapping[[i]] = levels(matches$result)[i]
+make.qda.model <- function(matches, features.for.predicting) {
+  result.mapping = vector(mode="list", length=length(levels(matches$target)))
+  for (i in 1:length(levels(matches$target))) {
+    result.mapping[[i]] = levels(matches$target)[i]
   }
+
+  features.for.predicting
+  matches <- matches[,features.for.predicting]
   
-  model.qda <- qda(result ~ ., data = matches)
+  model.qda <- qda(target ~ ., data = matches)
   predictions.qda <- predict(model.qda, type="response")
   predictions <- predictions.qda$posterior
   

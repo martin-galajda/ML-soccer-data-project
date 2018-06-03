@@ -1,97 +1,143 @@
-# Compute ratios of matches won / lost / tied for given team.
-# It expects parameters "start.date" and "end.date" to contain dates for which ratios should be computed.
-# It expects name of the team in paramter called "team".
-# Optionally, it is possible to fcompute ratios against specific team by setting against.team parameter.
-# Returns results as data frame.
-compute_ratios <- function(matches_csv, start.date, end.date, team, against.team = NULL) {
-  filtered.matches.home <- matches_csv[as.character(matches_csv$home_team) == team 
-                                       & as.Date(matches_csv$date) >= start.date 
-                                       & as.Date(matches_csv$date) <= end.date,
-                                       ]
-  filtered.matches.away <- matches_csv[as.character(matches_csv$away_team) == team 
-                                       & as.Date(matches_csv$date) >= start.date 
-                                       & as.Date(matches_csv$date) <= end.date,
-                                       ]
-  number.of.all.matches <- dim(filtered.matches.home)[1] + dim(filtered.matches.away)[1]
-  
-  if (is.character(against.team)) {
-    filtered.matches.home <- filtered.matches.home[as.character(filtered.matches.home$away_team) == against.team,]
-    filtered.matches.away <- filtered.matches.away[as.character(filtered.matches.away$home_team) == against.team,]
-  }
-  
-  matches.won.home <- filtered.matches.home[filtered.matches.home$result == "Home win", ]
-  matches.won.away <- filtered.matches.away[filtered.matches.away$result == "Away win", ]
-  matches.tie.home <- filtered.matches.home[filtered.matches.home$result == "Tie", ]
-  matches.tie.away <- filtered.matches.away[filtered.matches.away$result == "Tie", ]
-  
-  number.of.matches.won <- dim(matches.won.home)[1] + dim(matches.won.away)[1]
-  
-  win.ratio <- number.of.matches.won / number.of.all.matches
-  win.ratio.home <- dim(matches.won.home)[1] / dim(filtered.matches.home)[1]
-  win.ratio.away <- dim(matches.won.away)[1] / dim(filtered.matches.away)[1]
-  tie.ratio.home <- dim(matches.tie.home)[1] / dim(filtered.matches.home)[1]
-  tie.ratio.away <- dim(matches.tie.away)[1] / dim(filtered.matches.away)[1]
-  
-  result = data.frame(win.ratio, win.ratio.home, win.ratio.away, tie.ratio.home, tie.ratio.away)
-  
+compute_tie_ratio <- function(matches.team.played.home, matches.team.played.away) {
+  matches.tied.playing.home <- matches.team.played.home[matches.team.played.home$result == "Tie", ]
+  matches.tied.playing.away <- matches.team.played.away[matches.team.played.away$result == "Tie", ]
+
+  tie.ratio.playing.home <- dim(matches.tied.playing.home)[1] / dim(matches.team.played.home)[1]
+  tie.ratio.playing.away <- dim(matches.tied.playing.away)[1] / dim(matches.team.played.away)[1]
+  tie.ratio <- 
+    (dim(matches.tied.playing.home)[1] + dim(matches.tied.playing.away)[1]) /
+    (dim(matches.team.played.home)[1] + dim(matches.team.played.away)[1])
+
+
+  result <- data.frame(tie.ratio, tie.ratio.playing.home, tie.ratio.playing.away)
+
   return(result)
 }
 
+compute_win_ratio <- function(matches.team.played.home, matches.team.played.away, with.tie.as.half.win) {
+  matches.won.team.playing.home <- matches.team.played.home[
+    matches.team.played.home$result == "Home win",
+  ]
+  matches.won.team.playing.away <- matches.team.played.away[
+    matches.team.played.away$result == "Away win",
+  ]
 
-compute_win_ratio_for_match <- function(matches, match, num.of.prev.matches.for.ratio = 3) {
+  number.of.matches.won.home <- dim(matches.won.team.playing.home)[1]
+  number.of.matches.won.away <- dim(matches.won.team.playing.away)[1]
+  number.of.matches.won <- number.of.matches.won.home + number.of.matches.won.away
+
+  number.of.all.matches <- dim(matches.team.played.home)[1] + dim(matches.team.played.away)[1]
+
+  if (with.tie.as.half.win) {
+    matches.tied.team.playing.home <- matches.team.played.home[
+      matches.team.played.home$result == "Tie",
+    ]
+
+    matches.tied.team.playing.away <- matches.team.played.away[
+      matches.team.played.away$result == "Tie",
+    ]
+
+    number.of.matches.won.home <- number.of.matches.won.home + (dim(matches.tied.team.playing.home)[1] * 0.5)
+    number.of.matches.won.away <- number.of.matches.won.away + (dim(matches.tied.team.playing.away)[1] * 0.5)
+    number.of.matches.won <- number.of.matches.won + (dim(matches.tied.team.playing.home)[1] * 0.5) + (dim(matches.tied.team.playing.away)[1] * 0.5)
+  }
+
+  win.ratio <- number.of.matches.won / number.of.all.matches
+  win.ratio.playing.home <- number.of.matches.won.home / dim(matches.team.played.home)[1]
+  win.ratio.playing.away <- number.of.matches.won.away / dim(matches.team.played.away)[1]
+
+  result <- data.frame(win.ratio, win.ratio.playing.home, win.ratio.playing.away)
+
+  return(result)
+}
+
+# Compute ratios of matches won / tied for given match.
+# Returns results as data frame.
+compute_win_ratio_for_match <- function(matches, match, num.of.prev.matches.for.ratio = 3, with.tie.as.half.win = FALSE) {
   # we expect matches to be ordered by date
-  # ordered.matches <- matches[order(matches$date), ]
+  ordered.matches <- matches[order(matches$date), ]
   
-  filtered.matches.home <- ordered.matches[as.character(ordered.matches$home_team) == match$home_team 
-                                       & as.Date(ordered.matches$date) < match$date,
-                                       ]
+  filtered.matches.home.team.playing.home <- ordered.matches[
+    (as.character(ordered.matches$home_team) == match$home_team)
+    & as.Date(ordered.matches$date) < match$date,
+  ]
+
+  filtered.matches.home.team.playing.away <- ordered.matches[
+    (as.character(ordered.matches$away_team) == match$home_team)
+    & as.Date(ordered.matches$date) < match$date,
+  ]
   
-  filtered.matches.away <- ordered.matches[as.character(ordered.matches$away_team) == match$away_team 
-                                       & as.Date(ordered.matches$date) < match$date,
-                                       ]
+  filtered.matches.away.team.playing.home <- ordered.matches[
+    (as.character(ordered.matches$home_team) == match$away_team )
+    & as.Date(ordered.matches$date) < match$date,
+  ]
+
+  filtered.matches.away.team.playing.away <- ordered.matches[
+    (as.character(ordered.matches$away_team) == match$away_team)
+    & as.Date(ordered.matches$date) < match$date,
+  ]
   
   # We want to take into account only last "num.of.prev.matches.for.ratio" matches
-  filtered.matches.home <- tail(filtered.matches.home, num.of.prev.matches.for.ratio)
-  filtered.matches.away <- tail(filtered.matches.away, num.of.prev.matches.for.ratio)
+  filtered.matches.home.team.playing.home <- tail(filtered.matches.home.team.playing.home, num.of.prev.matches.for.ratio)
+  filtered.matches.home.team.playing.away <- tail(filtered.matches.home.team.playing.away, num.of.prev.matches.for.ratio)
+  filtered.matches.away.team.playing.home <- tail(filtered.matches.away.team.playing.home, num.of.prev.matches.for.ratio)
+  filtered.matches.away.team.playing.away <- tail(filtered.matches.away.team.playing.away, num.of.prev.matches.for.ratio)  
+
+  # compute win ratios
+  win.ratios.home.team <- compute_win_ratio(filtered.matches.home.team.playing.home, filtered.matches.home.team.playing.away, with.tie.as.half.win)
+  win.ratios.away.team <- compute_win_ratio(filtered.matches.away.team.playing.home, filtered.matches.away.team.playing.away, with.tie.as.half.win)
+  # create home team ratios
+  win.ratio.home.team <- win.ratios.home.team$win.ratio
+  win.ratio.home.team.playing.home <- win.ratios.home.team$win.ratio.playing.home
+  win.ratio.home.team.playing.away <- win.ratios.home.team$win.ratio.playing.away
+  # create away team ratios
+  win.ratio.away.team <- win.ratios.away.team$win.ratio
+  win.ratio.away.team.playing.home <- win.ratios.away.team$win.ratio.playing.home
+  win.ratio.away.team.playing.away <- win.ratios.away.team$win.ratio.playing.away
+
+  # ties are included in win ratio, do not compute them
+  if (with.tie.as.half.win == TRUE) {
+    result = data.frame(
+      win.ratio.home.team,
+      win.ratio.home.team.playing.home,
+      win.ratio.home.team.playing.away,
+
+      win.ratio.away.team,
+      win.ratio.away.team.playing.home,
+      win.ratio.away.team.playing.away
+    )
   
-  number.of.all.matches <- dim(filtered.matches.home)[1] + dim(filtered.matches.away)[1]
-  
-  matches.won.home <- filtered.matches.home[filtered.matches.home$result == "Home win", ]
-  matches.won.away <- filtered.matches.away[filtered.matches.away$result == "Away win", ]
-  
-  matches.lost.home <- filtered.matches.home[filtered.matches.home$result == "Away win", ]
-  matches.lost.away <- filtered.matches.away[filtered.matches.away$result == "Home win", ]
-  
-  matches.tie.home <- filtered.matches.home[filtered.matches.home$result == "Tie", ]
-  matches.tie.away <- filtered.matches.away[filtered.matches.away$result == "Tie", ]
-  
-  number.of.matches.won <- dim(matches.won.home)[1] + dim(matches.won.away)[1]
-  number.of.matches.tied <- dim(matches.tie.home)[1] + dim(matches.tie.away)[1]
-    
-  win.ratio <- number.of.matches.won / number.of.all.matches
-  
-  win.ratio.with.ties <- (number.of.matches.won + number.of.matches.tied) / number.of.all.matches
-  
-  win.ratio.home <- dim(matches.won.home)[1] / dim(filtered.matches.home)[1]
-  win.ratio.away <- dim(matches.won.away)[1] / dim(filtered.matches.away)[1]
-  tie.ratio.home <- dim(matches.tie.home)[1] / dim(filtered.matches.home)[1]
-  tie.ratio.away <- dim(matches.tie.away)[1] / dim(filtered.matches.away)[1]
-  loss.ratio.home <- dim(matches.lost.home)[1] / dim(filtered.matches.home)[1]
-  loss.ratio.away <- dim(matches.lost.away)[1] / dim(filtered.matches.away)[1]
-  
-  win.ratio.home.with.ties = (dim(matches.won.home)[1] + (dim(matches.tie.home)[1] * 0.5)) / dim(filtered.matches.home)[1]
-  win.ratio.away.with.ties = (dim(matches.won.away)[1] + (dim(matches.tie.away)[1] * 0.5)) / dim(filtered.matches.away)[1]
+    return(result)
+  }
+
+  # compute tie ratios
+  tie.ratios.home.team <- compute_tie_ratio(filtered.matches.home.team.playing.home, filtered.matches.home.team.playing.away)
+  tie.ratios.away.team <- compute_tie_ratio(filtered.matches.away.team.playing.home, filtered.matches.away.team.playing.away)
+  # create home team ratios
+  tie.ratio.home.team <- tie.ratios.home.team$tie.ratio
+  tie.ratio.home.team.playing.home <- tie.ratios.home.team$tie.ratio.playing.home
+  tie.ratio.home.team.playing.away <- tie.ratios.home.team$tie.ratio.playing.away
+  # create away team ratios
+  tie.ratio.away.team <- tie.ratios.away.team$tie.ratio
+  tie.ratio.away.team.playing.home <- tie.ratios.away.team$tie.ratio.playing.home
+  tie.ratio.away.team.playing.away <- tie.ratios.away.team$tie.ratio.playing.away
   
   result = data.frame(
-    win.ratio,
-    win.ratio.home,
-    win.ratio.away,
-    tie.ratio.home,
-    tie.ratio.away,
-    loss.ratio.home,
-    loss.ratio.away,
-    win.ratio.home.with.ties,
-    win.ratio.away.with.ties
+    win.ratio.home.team,
+    win.ratio.home.team.playing.home,
+    win.ratio.home.team.playing.away,
+
+    win.ratio.away.team,
+    win.ratio.away.team.playing.home,
+    win.ratio.away.team.playing.away,
+
+    tie.ratio.home.team,
+    tie.ratio.home.team.playing.home,
+    tie.ratio.home.team.playing.away,
+
+    tie.ratio.away.team,
+    tie.ratio.away.team.playing.home,
+    tie.ratio.away.team.playing.away
   )
   
   return(result)

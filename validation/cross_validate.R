@@ -1,6 +1,6 @@
 library(TunePareto) # for generateCVRuns()
 
-cross.validate.model <- function(data, build.model, build.model.params, k = 10) {
+cross.validate.model <- function(data, build.model, build.model.params, k = 10, predict.type = "response") {
   CV.folds <- generateCVRuns(data$target, ntimes=1, nfold=k, stratified=TRUE)
 
   cv.results <- matrix (rep(0, 4*k),nrow=k)
@@ -19,9 +19,9 @@ cross.validate.model <- function(data, build.model, build.model.params, k = 10) 
     model.training <- build.model(data[-validation.indices, ], build.model.params)
     
     # predict training data
-    pred.model.training <- predict(model.training$model)
+    pred.model.training <- predict(model.training$model, type = predict.type)
 
-    if (typeof(pred.model.training) == "list") {
+    if (predict.type == "response") {
       pred.model.training <- pred.model.training$class
     }
     
@@ -29,9 +29,9 @@ cross.validate.model <- function(data, build.model, build.model.params, k = 10) 
     cv.results[j, "TR error"] <- 1 - sum(table.result[row(table.result)==col(table.result)])/sum(table.result)
     
     # predict validation data
-    pred.cross.validation <- predict(model.training$model, newdata=data[validation.indices,])
+    pred.cross.validation <- predict(model.training$model, newdata=data[validation.indices,], type = predict.type)
 
-    if (typeof(pred.cross.validation) == "list") {
+    if (predict.type == "response") {
       pred.cross.validation <- pred.cross.validation$class
     }
     

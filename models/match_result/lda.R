@@ -1,13 +1,15 @@
 library(MASS)
 
-make.lda.model <- function(matches) {
-  result.mapping = vector(mode="list", length=length(levels(matches$result)))
-  for (i in 1:length(levels(matches$result))) {
-    result.mapping[[i]] = levels(matches$result)[i]
+make.lda.model <- function(matches, features.for.predicting) {
+  result.mapping = vector(mode="list", length=length(levels(matches$target)))
+  for (i in 1:length(levels(matches$target))) {
+    result.mapping[[i]] = levels(matches$target)[i]
   }
   
+  matches <- matches[,features.for.predicting]
+  
   model.lda <- lda(
-    result ~ ., 
+    target ~ ., 
     data = matches)
 
   predictions.lda <- predict(model.lda, type="response")

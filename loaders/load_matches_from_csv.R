@@ -1,6 +1,6 @@
 
 load.matches.from.csv <- function() {
-  matches_csv = read.csv('./data/db_matches.csv')
+  matches_csv = read.csv2('./data/db_matches.csv', sep=",", encoding="latin1")
 
   # Add results to the csv
   matches_csv$result <- rep(NA, dim(matches_csv)[1])
