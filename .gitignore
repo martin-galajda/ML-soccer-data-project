@@ -2,5 +2,6 @@
 *.sqlite
 *.csv
 !data/db_matches.csv
+!data/db_players.csv
 .Rhistory
 .RData

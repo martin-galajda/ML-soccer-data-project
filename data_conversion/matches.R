@@ -68,7 +68,7 @@ posVar = function(var) {
 db_matches$home_possession = posVar(db_matches$possession)
 
 # add result
-db_matches$result <- rep(NA, dim(db_matches)[1])
+db_matches$result = rep(NA, dim(db_matches)[1])
 db_matches$result[db_matches$home_team_goal > db_matches$away_team_goal]  = 1.0
 db_matches$result[db_matches$home_team_goal == db_matches$away_team_goal] = 0.5
 db_matches$result[db_matches$home_team_goal < db_matches$away_team_goal]  = 0.0

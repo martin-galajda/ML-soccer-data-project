@@ -1,13 +1,14 @@
 # Compute the number of goals for a given team in a given number of matches prior a given match.
 # Expected parameters:
 # - matches_csv         expects the data
-# - match.id            expects a match id (only matches prior this match are considered)
+# - sample.match        expects a match (only matches prior this match are considered)
 # - number.matches      expects the number of matches to take into account
 # - home.away.selector  (optional) expects "home" or "away" if only home/ away games should be considered
 # Returns the number of goals.
 
-compute_number_of_goals <- function (matches_csv, match.id, number.matches, home.away.selector = NULL) {
-  match <- matches_csv[matches_csv$X == match.id,]
+compute_number_of_goals <- function (matches_csv, sample.match, number.matches, home.away.selector = NULL) {
+  #match <- matches_csv[matches_csv$X == match.id,]
+  match <- sample.match
   
   # select relevant rows
   if(is.character(home.away.selector)){
