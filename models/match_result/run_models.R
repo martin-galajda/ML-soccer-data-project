@@ -8,29 +8,68 @@
 
 # Load matches with all relevant features for predicting match result (win ratio, attack strength...)
 source('./loaders/load_matches_with_all_relevant_features_for_match_result.R')
+source('./models/match_result/lda.R')
+source('./models/match_result/qda.R')
+source('./models/match_result/multinomial_regression.R')
+source('./validation/cross_validate.R')
+
 matches.merged.all.features <- load.matches.with.all.features.for.match.result()
 
 # Select features for predicting
-features.for.predicting <- c(
-  'result', 
+features.for.keeping <- c(
+  'result',
+  'season',
   'attack.strength.home.team',
-  'win.ratio',
-  'win.ratio.home.with.ties',
-  'win.ratio.away.with.ties',
-  'tie.ratio.home',
-  'tie.ratio.away'
+  'attack.strength.away.team',
+  'win.ratio.home.team',
+  'win.ratio.away.team',
+  'win.ratio.home.team.playing.home',
+  'win.ratio.home.team.playing.away',
+  'win.ratio.away.team.playing.home',
+  'win.ratio.away.team.playing.away'
 )
+features.for.predicting <- features.for.keeping[3:length(features.for.keeping)]
 # select from dataframe only columns relevant for predicting
-matches.for.training <- matches.merged.all.features[,features.for.predicting]
+matches.for.training <- matches.merged.all.features[,features.for.keeping]
+matches.for.training$target <- matches.for.training$result
 
-# TODO: Run cross-validation to select right subset of features for predicting and the best model
+cross.validated.best.features.for.predicting <- c(
+  'target', # this needs to always be inside dataframe
+  'attack.strength.home.team',
+  'attack.strength.away.team',
+  'win.ratio.home.team',
+  'win.ratio.away.team',
+  'win.ratio.home.team.playing.home',
+  'win.ratio.away.team.playing.away'
+)
+
+CV.error.lda <- cross.validate.model(matches.for.training, build.model = make.lda.model, cross.validated.best.features.for.predicting)
+CV.error.lda
+
+CV.error.qda <- cross.validate.model(matches.for.training, build.model = make.qda.model, cross.validated.best.features.for.predicting)
+CV.error.qda
+
+CV.error.multinomial <- cross.validate.model(matches.for.training, build.model = make.multinomial.logistic.regression.model, cross.validated.best.features.for.predicting)
+CV.error.multinomial
+
+source('./validation/determine_best_feature_subset.R')
+# used for determining best features (takes a long time compute, tries all combinations)
+# res.best.features.lda <- determine.best.subset.of.features(matches.for.training, features.for.predicting, make.lda.model)
+# best.subset.of.features.lda <- values(res.best.features.lda)[["best.subset.features"]]
+# res.best.features.logistic <- determine.best.subset.of.features(matches.for.training, features.for.predicting, make.multinomial.logistic.regression.model, predict.type = "class")
+# best.subset.of.features.logistic <- values(res.best.features.logistic)[["best.subset.features"]]
+
 # TODO: Make ROC curve to assess best model
-source('./models/match_result/lda.R')
-lda.model <- make.lda.model(matches.for.training)
 
-source('./models/match_result/qda.R')
-qda.model <- make.qda.model(matches.for.training)
+source('./validation/compute_test_error.R')
+test.error.lda.model <- compute.test.error(matches.for.training, make.lda.model, cross.validated.best.features.for.predicting)
+test.error.lda.model.2 <- compute.test.error.using.last.season(matches.for.training, make.lda.model, cross.validated.best.features.for.predicting)
 
-source('./models/match_result/multinomial_regression.R')
-multinomial.model <- make.multinomial.logistic.regression.model(matches.for.training)
+test.error.qda.model <- compute.test.error(matches.for.training, make.qda.model, cross.validated.best.features.for.predicting)
+test.error.qda.model.2 <- compute.test.error.using.last.season(matches.for.training, make.qda.model, cross.validated.best.features.for.predicting)
 
+test.error.logistic.model <- compute.test.error(matches.for.training, make.multinomial.logistic.regression.model, cross.validated.best.features.for.predicting, predict.type="class")
+test.error.logistic.model.2 <- compute.test.error.using.last.season(matches.for.training, make.multinomial.logistic.regression.model, cross.validated.best.features.for.predicting, predict.type="class")
+
+lda.model <- make.lda.model(matches.for.training, cross.validated.best.features.for.predicting)
+multinomial.model <- make.multinomial.logistic.regression.model(matches.for.training, cross.validated.best.features.for.predicting)

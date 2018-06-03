@@ -2,7 +2,12 @@ library(hash)
 ## hash-2.2.6 provided by Decision Patterns
 source('./validation/cross_validate.R')
 
-determine.best.subset.of.features <- function(data.for.training, features.for.predicting, build.model) {
+#' Determine best subset of errors by tring computing cross-validation error on every possible combination of the features.
+#' @param data.for.training data that will be used for building model and predictin test error
+#' @param features.for.predicting vector off strings containing names of features that can be used for building model
+#' @param build.model function which builds model
+#' @return information about best subset of features in form of hash dictionary
+determine.best.subset.of.features <- function(data.for.training, features.for.predicting, build.model, predict.type = "response") {
   result <- hash()
   lowest.CV.error.seen <- 1.0
   
@@ -22,7 +27,7 @@ determine.best.subset.of.features <- function(data.for.training, features.for.pr
       # always keep target inside dataframe
       features.for.predicting.current.iter <- c(possible.combination, 'target')
       
-      CV.error <- cross.validate.model(matches.for.training, build.model, features.for.predicting.current.iter)
+      CV.error <- mean(replicate(1, cross.validate.model(matches.for.training, build.model, features.for.predicting.current.iter, predict.type = predict.type)))
       
       key.CV.error.res <- paste("CV.error_", number.of.features.to.select, "_", possible.combination.idx, sep = "")
       key.subset.res <- paste("CV.subset_features_", number.of.features.to.select, "_", possible.combination.idx, sep = "")
