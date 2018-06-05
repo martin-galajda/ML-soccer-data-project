@@ -11,6 +11,8 @@ source('./loaders/load_matches_with_all_relevant_features_for_match_result.R')
 source('./models/match_result/lda.R')
 source('./models/match_result/qda.R')
 source('./models/match_result/multinomial_regression.R')
+source('./models/match_result/knn.R')
+source('./models/match_result/svm.R')
 source('./validation/cross_validate.R')
 
 matches.merged.all.features <- load.matches.with.all.features.for.match.result()
@@ -52,6 +54,34 @@ CV.error.qda
 CV.error.multinomial <- cross.validate.model(matches.for.training, build.model = make.multinomial.logistic.regression.model, cross.validated.best.features.for.predicting)
 CV.error.multinomial
 
+source('./models/match_result/svm.R')
+source('./validation/cross_validate.R')
+CV.error.svm.C.1 <- cross.validate.model(matches.for.training, build.model = create.svm.model.builder(kernel="vanilladot", C = 1), cross.validated.best.features.for.predicting)
+CV.error.svm.C.1
+
+CV.error.svm.C.100 <- cross.validate.model(matches.for.training, build.model = create.svm.model.builder(kernel="vanilladot", C = 100), cross.validated.best.features.for.predicting)
+CV.error.svm.C.100
+
+
+svp <- ksvm(as.matrix(matches.for.training[, features.for.predicting]),matches.for.training$target,type="C-svc",kernel="vanilladot",C=100,scaled=c())
+preds <- predict(svp, newdata=matches.for.training[, features.for.predicting], type="response")
+
+
+source('./models/match_result/knn.R')
+k.length <- 100
+CV.error.knn.from.355.to.400 <- c()
+for (i in seq(355,400, 5)) {
+  CV.error.knn.from.355.to.400 = c(CV.error.knn.from.355.to.400, cross.validate.model(
+    matches.for.training,
+    build.model = create.knn.model.builder(k = i),
+    cross.validated.best.features.for.predicting,
+    predict.type="class"
+  ))
+}
+
+
+
+
 source('./validation/determine_best_feature_subset.R')
 # used for determining best features (takes a long time compute, tries all combinations)
 # res.best.features.lda <- determine.best.subset.of.features(matches.for.training, features.for.predicting, make.lda.model)
@@ -70,6 +100,12 @@ test.error.qda.model.2 <- compute.test.error.using.last.season(matches.for.train
 
 test.error.logistic.model <- compute.test.error(matches.for.training, make.multinomial.logistic.regression.model, cross.validated.best.features.for.predicting, predict.type="class")
 test.error.logistic.model.2 <- compute.test.error.using.last.season(matches.for.training, make.multinomial.logistic.regression.model, cross.validated.best.features.for.predicting, predict.type="class")
+
+k = 150
+test.error.knn.model <- compute.test.error(matches.for.training, create.knn.model.builder(k = k), cross.validated.best.features.for.predicting, predict.type="class")
+test.error.knn.model.2 <- compute.test.error.using.last.season(matches.for.training, create.knn.model.builder(k = k), cross.validated.best.features.for.predicting, predict.type="class")
+test.error.knn.model
+test.error.knn.model.2
 
 lda.model <- make.lda.model(matches.for.training, cross.validated.best.features.for.predicting)
 multinomial.model <- make.multinomial.logistic.regression.model(matches.for.training, cross.validated.best.features.for.predicting)
