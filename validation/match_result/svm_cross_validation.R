@@ -49,6 +49,6 @@ for (possible.kernel in possible.kernels) {
   }
 }
 
-save(result, file = "cv_results_match_result_svm.Rdata")
+save(result, file = "cv_results_match_result_svm.RData")
 
 

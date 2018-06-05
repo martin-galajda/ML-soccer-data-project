@@ -32,13 +32,14 @@ cross.validated.best.features.for.predicting <- c(
   'win.ratio.away.team.playing.away'
 )
 
-k.length <- 100
 CV.error.knn.from.1.to.400 <- c()
-for (i in seq(355,400, 5)) {
-  CV.error.knn.from.355.to.400 = c(CV.error.knn.from.355.to.400, cross.validate.model(
+for (i in seq(1,401, 5)) {
+  CV.error.knn.from.1.to.400 = c(CV.error.knn.from.1.to.400, cross.validate.model(
     matches.for.training,
     build.model = create.knn.model.builder(k = i),
     cross.validated.best.features.for.predicting,
     predict.type="class"
   ))
 }
+
+save(CV.error.knn.from.1.to.400, file = "cv_results_match_results_knn.svm")
