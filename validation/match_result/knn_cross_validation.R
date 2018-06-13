@@ -42,4 +42,4 @@ for (i in seq(1,401, 5)) {
   ))
 }
 
-save(CV.error.knn.from.1.to.400, file = "cv_results_match_results_knn.svm")
+save(CV.error.knn.from.1.to.400, file = "./results/match_result/saved_Rdata/CV_error_knn_overal_best_k.RData")
