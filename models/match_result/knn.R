@@ -2,8 +2,10 @@ library(class)
 
 # create a function that returns an object of class knnClassifier
 knnClassifier = function(trainingData, k = 10, features.for.predicting) {
-  model = structure(list(x = trainingData[, -which(names(trainingData) %in% c("target"))], 
-                         target = trainingData$target, 
+  target <- trainingData$target
+  trainingData <- trainingData[, features.for.predicting[!features.for.predicting %in% c("target")]]
+  model = structure(list(x = trainingData,
+                         target = target, 
                          k=k, 
                          features.for.predicting=features.for.predicting[features.for.predicting != "target"]), 
                     class = "knnClassifier") 
@@ -17,7 +19,7 @@ predict.knnClassifier <- function(modelObject, newdata = NULL, type) {
     test.data = modelObject$x
     test <- test.data[, modelObject$features.for.predicting]
   } else {
-    test.data <- newdata[, -which(names(newdata) %in% c("target"))]
+    test.data <- newdata[, !names(newdata) %in% c("target")]
     test <- test.data[, modelObject$features.for.predicting]
   }
 
@@ -27,7 +29,7 @@ predict.knnClassifier <- function(modelObject, newdata = NULL, type) {
 }
 
 make.knn.model = function(data, features.for.predicting, k = 3) {
-  train.data <- data[,features.for.predicting]
+  train.data <- data[,c(features.for.predicting, "target")]
   model.knn <- knnClassifier(train.data, k, features.for.predicting = features.for.predicting)
   
   result = vector(mode="list", length=3)

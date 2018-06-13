@@ -24,7 +24,7 @@ make.qda.model <- function(matches, features.for.predicting) {
     # append the result to the results list
     predicted.results <- c(predicted.results, predicted.result)
   }
-  prediction.accuracy.qda <- mean(matches$result == predicted.results)
+  prediction.accuracy.qda <- mean(matches$target == predicted.results)
   
   result = vector(mode="list", length=3)
   result[["model"]] <- model.qda

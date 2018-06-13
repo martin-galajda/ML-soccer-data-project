@@ -23,7 +23,7 @@ make.multinomial.logistic.regression.model <- function(matches, features.for.pre
     predicted.results <- c(predicted.results, predicted.result)
   }
   
-  prediction.accuracy.multinomial <- mean(matches$result == predicted.results)
+  prediction.accuracy.multinomial <- mean(matches$target == predicted.results)
   
   result = vector(mode="list", length=3)
   result[["model"]] <- model.multinom

@@ -20,13 +20,14 @@ compute.test.error <- function(data, build.model, features.for.model, predict.ty
   # create training and test data
   training.data <- data[training.indices, features.for.model]
   test.data <- data[-training.indices, features.for.model]
-
+  
   # build model
   build.model.result <- build.model(training.data, features.for.model)
 
   # get predictions from built model for test data
-  test.predictions <- predict(build.model.result$model, type=predict.type, newdata=test.data)
-  if (predict.type == "response") {
+  test.data.prediction <- test.data[, !names(test.data) %in% c("target")]
+  test.predictions <- predict(build.model.result$model, type=predict.type, newdata=test.data.prediction)
+  if (predict.type == "response" & "class" %in% names(test.predictions)) {
     test.predictions <- test.predictions$class
   }
   # compute test error
@@ -46,7 +47,6 @@ compute.test.error <- function(data, build.model, features.for.model, predict.ty
 #' @return computed test error
 compute.test.error.using.last.season <- function(data, build.model, features.for.model, predict.type = "response") {
   features.for.model <- unique(c(features.for.model, 'target'))
-
   training.indices <- which(data$season != "2015/2016")
 
   # create training and test data
@@ -55,10 +55,11 @@ compute.test.error.using.last.season <- function(data, build.model, features.for
   
   # build model
   build.model.result <- build.model(training.data, features.for.model)
-  
+
   # get predictions from built model for test data
-  test.predictions <- predict(build.model.result$model, type=predict.type, newdata=test.data)
-  if (predict.type == "response") {
+  test.data.prediction <- test.data[, !names(test.data) %in% c("target")]
+  test.predictions <- predict(build.model.result$model, type=predict.type, newdata=test.data.prediction)
+  if (predict.type == "response" & "class" %in% names(test.predictions)) {
     test.predictions <- test.predictions$class
   }
   # compute test error

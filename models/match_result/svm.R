@@ -1,10 +1,7 @@
 library(kernlab)
 
 make.svm.model <- function(data, features.for.predicting, kernel, C=100, type="C-svc") {
-  
   train.data <- data[, features.for.predicting[!features.for.predicting %in% c("target")]]
-  print(colnames(train.data))
-
   model.svm <- ksvm(as.matrix(train.data), data$target, type=type, kernel=kernel, C=C, scaled=c())
   
   result = vector(mode="list", length=3)

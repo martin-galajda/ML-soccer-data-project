@@ -15,15 +15,13 @@ cross.validate.model <- function(data, build.model, features.for.predicting, k =
     validation.indices <- unlist(CV.folds[[1]][[j]])
 
     # train on TR data
-    # my.lda.TR <- lda(target ~ X1 + X2, data = data[-va,], prior=priors, CV=FALSE)
-    print("Building model")
-    
+
     model.training <- build.model(data[-validation.indices, ], features.for.predicting)
-    print("Built model")
-    
+
     # predict training data
     pred.model.training <- predict(model.training$model, type = predict.type)
 
+    # some models after predicting with type "response" provide predictions inside $class attribute, some not
     if (predict.type == "response" & "class" %in% names(pred.model.training)) {
       pred.model.training <- pred.model.training$class
     }
@@ -35,6 +33,7 @@ cross.validate.model <- function(data, build.model, features.for.predicting, k =
     prediction.features <- features.for.predicting[!features.for.predicting %in% c("target")]
     pred.cross.validation <- predict(model.training$model, newdata=data[validation.indices, prediction.features], type = predict.type)
 
+    # some models after predicting with type "response" provide predictions inside $class attribute, some not
     if (predict.type == "response" & "class" %in% names(pred.cross.validation)) {
       pred.cross.validation <- pred.cross.validation$class
     }

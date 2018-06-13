@@ -1,6 +1,9 @@
+set.seed(123)
+
+# Load matches with all relevant features for predicting match result (win ratio, attack strength...)
 source('./loaders/load_matches_with_all_relevant_features_for_match_result.R')
-source('./models/match_result/svm.R')
-source('./validation/cross_validate.R')
+source('./models/match_result/multinomial_regression.R')
+source('./validation/compute_test_error.R')
 
 matches.merged.all.features <- load.matches.with.all.features.for.match.result()
 
@@ -13,8 +16,6 @@ features.for.keeping <- c(
   'win.ratio.home.team',
   'win.ratio.away.team',
   'win.ratio.home.team.playing.home',
-  'win.ratio.home.team.playing.away',
-  'win.ratio.away.team.playing.home',
   'win.ratio.away.team.playing.away'
 )
 features.for.predicting <- features.for.keeping[3:length(features.for.keeping)]
@@ -26,31 +27,24 @@ cross.validated.best.features.for.predicting <- c(
   'target', # this needs to always be inside dataframe
   'attack.strength.home.team',
   'attack.strength.away.team',
+  'win.ratio.home.team',
+  'win.ratio.away.team',
   'win.ratio.home.team.playing.home',
   'win.ratio.away.team.playing.away'
 )
 
-# Determine best kernel and best C
-possible.kernels <- c("rbfdot", "polydot", "vanilladot")
-possible.Cs = c(1, 51, 101, 151, 201, 501, 1001)
+# with potential small leakage
+test.error.logistic.model <- compute.test.error(
+  matches.for.training,
+  make.multinomial.logistic.regression.model, 
+  cross.validated.best.features.for.predicting,
+  predict.type="class"
+)
 
-result <- list()
-result = vector(mode="list", length=length(possible.kernels) * length(possible.Cs))
-
-for (possible.kernel in possible.kernels) {
-  for (possible.C in possible.Cs) {
-    name <- paste(possible.kernel, "_C_", possible.C, sep = "")
-
-    CV.error <- cross.validate.model(matches.for.training, build.model = create.svm.model.builder(kernel=possible.kernel, C = possible.C), cross.validated.best.features.for.predicting)
-    result[[name]] = CV.error
-    print(name)
-    print(CV.error)
-  }
-}
-
-CV.error.svm.models <- result
-
-save(CV.error.svm.models, file = "./results/match_result/saved_Rdata/cv_results_match_result_svm.RData")
-
-
-
+# without leakage
+test.error.logistic.model.without.leakage <- compute.test.error.using.last.season(
+  matches.for.training, 
+  make.multinomial.logistic.regression.model, 
+  cross.validated.best.features.for.predicting, 
+  predict.type="class"
+)
