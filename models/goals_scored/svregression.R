@@ -1,6 +1,6 @@
 library(e1071)
 
-### Prepared data and runs the model - should be replaced by global feature cross validation
+### Prepare data and runs the model - should be replaced by global feature cross validation
 run.svr.regression <- function () {
 
   # Select features for predicting
@@ -35,7 +35,7 @@ run.svr.regression <- function () {
   return( predict.svregression(matches.for.training, features.for.predicting) )
 }
 
-### Creates model and predicts goals using the optimal parameters (based on previous model tuning)
+### Creates the model and predicts goals using the optimal parameters (found in previous model tuning)
 make.svregression.model <- function(matches, features.for.predicting) {
   
   matches <- matches[,features.for.predicting]
@@ -54,7 +54,7 @@ make.svregression.model <- function(matches, features.for.predicting) {
   return (result) 
 }
 
-### Tuning the model will take many hours (depending on the parameters it took me 10 to 30 hours)
+### Tuning the model will take a long time (depending on the parameters it took me 10 to 30 hours)
 tune.svregression.model <- function(matches, features.for.predicting) {
 
   matches <- matches[,features.for.predicting]
