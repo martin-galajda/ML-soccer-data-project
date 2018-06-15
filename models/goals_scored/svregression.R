@@ -32,7 +32,7 @@ run.svr.regression <- function () {
     'win.ratio.away.team.playing.away'
   )
   
-  return( predict.svregression(matches.for.training, features.for.predicting) )
+  return( make.svregression.model (matches.for.training, features.for.predicting) )
 }
 
 ### Creates the model and predicts goals using the optimal parameters (found in previous model tuning)
