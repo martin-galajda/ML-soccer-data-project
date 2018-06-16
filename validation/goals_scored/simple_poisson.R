@@ -4,8 +4,8 @@
 source('./loaders/load_matches_with_attack_ratios.R')
 source('./models/goals_scored/simple_poisson.R')
 
-matches = load.matches.with.attack.ratios()[,c('attack.strength.home.team','home_team_goal',
-                                               'attack.strength.away.team','away_team_goal')]
+matches = load.matches.with.attack.ratios()
+matches = matches[,c('attack.strength.home.team','home_team_goal','attack.strength.away.team','away_team_goal')]
 
 # predict all matches
 

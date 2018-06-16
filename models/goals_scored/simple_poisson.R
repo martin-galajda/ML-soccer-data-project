@@ -3,6 +3,5 @@ predict.simple.poisson <- function(matches) {
     matches[,paste0('pred.home.goals.',i)] = dpois(i, lambda=matches$attack.strength.home.team)
     matches[,paste0('pred.away.goals.',i)] = dpois(i, lambda=matches$attack.strength.away.team)
   }
-  
   return(matches)
 }
