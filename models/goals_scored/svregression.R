@@ -19,7 +19,7 @@ run.svr.regression <- function () {
   
   features.for.predicting <- features.for.keeping[3:length(features.for.keeping)]
   # select from dataframe only columns relevant for predicting
-  matches.for.training <- matches.merged.all.features[,features.for.keeping]
+  matches.for.training <- matches.merged.all.features[,features.for.keeping] # matches.merged.all.features variable (?)
   matches.for.training$target <- matches.merged.all.features$home_team_goal
   
   features.for.predicting <- c(
@@ -44,12 +44,12 @@ make.svregression.model <- function(matches, features.for.predicting) {
  
   predicted.goals <- predict(model.svr, data = matches)
   
-  rmse.svr <- sqrt((matches$target - predictions)^2)
+  rmse.svr <- sqrt((matches$target - predicted.goals)^2) # usage (?)
   
   result = vector(mode="list", length=3)
   result[["model"]] <- model.svr
   result[["predictions"]] <- predicted.goals
-  result[["accuracy"]] <- prediction.accuracy.multinomial
+  #result[["accuracy"]] <- prediction.accuracy.multinomial (?)
    
   return (result) 
 }
