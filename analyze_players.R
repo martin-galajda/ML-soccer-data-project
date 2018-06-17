@@ -54,5 +54,5 @@ for (k in K) {
     }
   }
 }
-qplot(K,bestCHs,xlab="K", ylab="Calinski-Harabasz") + geom_line(color="red")
+qplot(K,bestCHs,xlab="K", ylab="Calinski-Harabasz") + geom_line(color="red") + theme_bw()
 centers = bestC$centers
