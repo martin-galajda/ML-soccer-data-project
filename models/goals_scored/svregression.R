@@ -19,7 +19,10 @@ run.svr.regression <- function () {
   
   features.for.predicting <- features.for.keeping[3:length(features.for.keeping)]
   # select from dataframe only columns relevant for predicting
-  matches.for.training <- matches.merged.all.features[,features.for.keeping] # matches.merged.all.features variable (?)
+  
+  # matches.merged.all.features is the return from load.matches.with.all.features.for.match.result() as in line 18 of run_models.R it contains all features including the win ratios 
+  
+  matches.for.training <- matches.merged.all.features[,features.for.keeping] # see line above ^
   matches.for.training$target <- matches.merged.all.features$home_team_goal
   
   features.for.predicting <- c(
@@ -44,12 +47,12 @@ make.svregression.model <- function(matches, features.for.predicting) {
  
   predicted.goals <- predict(model.svr, data = matches)
   
-  rmse.svr <- sqrt((matches$target - predicted.goals)^2) # usage (?)
+  rmse.svr <- sqrt((matches$target - predicted.goals)^2)
   
   result = vector(mode="list", length=3)
-  result[["model"]] <- model.svr
-  result[["predictions"]] <- predicted.goals
-  #result[["accuracy"]] <- prediction.accuracy.multinomial (?)
+  result[["model"]] <- model.svr.tuned
+  result[["predictions"]] <- predicted.goals.tuned
+  result[["accuracy"]] <- rmse.svr.tuned
    
   return (result) 
 }
