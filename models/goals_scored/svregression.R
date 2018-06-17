@@ -51,7 +51,7 @@ make.svregression.model <- function(matches, features.for.predicting) {
   
   result = vector(mode="list", length=3)
   result[["model"]] <- model.svr
-  result[["predictions"]] <- predicted.goals.tuned
+  result[["predictions"]] <- predicted.goals
   result[["accuracy"]] <- rmse.svr
    
   return (result) 
