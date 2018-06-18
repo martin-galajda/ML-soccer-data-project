@@ -44,7 +44,7 @@ run.svr.regression <- function () {
   View(predicted.goals.home)
   View(predicted.goals.away)
   
-  #return( make.svregression.model (matches.for.training.home, features.for.predicting, 0.1) )
+  return( c(predicted.goals.home, predicted.goals.away) )
 }
 
 ### This function creates the model and predicts goals using the optimal parameters (found in previous model tuning)
@@ -108,16 +108,16 @@ tune.svregression.model <- function(matches, features.for.predicting, test.metho
   
   predicted.goals <- predict(tunedModel, data = matches.test) 
   
-  rmse.svr <-  sqrt((matches.test$target - predicted.goals)^2)
+  nrmse.svr <-  (mean((matches.test$target - predicted.goals)^2)/var(matches.test$target))^0.5
   accuracy.svr <- mean(matches.test$target == round(predicted.goals))
   
-  print(rmse.svr)
+  print(nrmse.svr)
   print(accuracy.svr)
   
-  result = vector(mode="list", length=3)
+  result = vector(mode="list")
   result[["model"]] <- model.svr
   result[["predictions"]] <- predicted.goals
-  result[["rmse"]] <- rmse.svr
+  result[["nrmse"]] <- nrmse.svr
   result[["accuracy"]] <- accuracy.svr
   
   return (result) 
