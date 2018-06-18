@@ -1,8 +1,10 @@
 library(e1071)
 
-### Prepare data and runs the model - should be replaced by global feature cross validation
+### Prepare data and runs the model
 run.svr.regression <- function () {
 
+  # matches.merged.all.features = load.matches.with.all.features.for.match.result()
+  
   # Select features for predicting
   features.for.keeping <- c(
     'result',
@@ -17,13 +19,14 @@ run.svr.regression <- function () {
     'win.ratio.away.team.playing.away'
   )
   
-  features.for.predicting <- features.for.keeping[3:length(features.for.keeping)]
   # select from dataframe only columns relevant for predicting
+  features.for.predicting <- features.for.keeping[3:length(features.for.keeping)]
   
-  # matches.merged.all.features is the return from load.matches.with.all.features.for.match.result() as in line 18 of run_models.R it contains all features including the win ratios 
+  matches.for.training.home <- matches.merged.all.features[,features.for.keeping]
+  matches.for.training.home$target <- matches.merged.all.features$home_team_goal
   
-  matches.for.training <- matches.merged.all.features[,features.for.keeping] # see line above ^
-  matches.for.training$target <- matches.merged.all.features$home_team_goal
+  matches.for.training.away <- matches.merged.all.features[,features.for.keeping]
+  matches.for.training.away$target <- matches.merged.all.features$away_team_goal
   
   features.for.predicting <- c(
     'target', # this needs to always be inside dataframe
@@ -35,49 +38,87 @@ run.svr.regression <- function () {
     'win.ratio.away.team.playing.away'
   )
   
-  return( make.svregression.model (matches.for.training, features.for.predicting) )
+  predicted.goals.home <- make.svregression.model (matches.for.training.home, features.for.predicting, 0.1)
+  predicted.goals.away <- make.svregression.model (matches.for.training.away, features.for.predicting, 0.1)
+  
+  View(predicted.goals.home)
+  View(predicted.goals.away)
+  
+  #return( make.svregression.model (matches.for.training.home, features.for.predicting, 0.1) )
 }
 
-### Creates the model and predicts goals using the optimal parameters (found in previous model tuning)
-make.svregression.model <- function(matches, features.for.predicting) {
+### This function creates the model and predicts goals using the optimal parameters (found in previous model tuning)
+### depending on the column copied into "target" this function predicts the goals for the home or away team
+make.svregression.model <- function(matches, features.for.predicting, test.method) {
   
   matches <- matches[,features.for.predicting]
   
-  model.svr <- svm(target ~., data = matches, epsilon = 0.6, cost=2)
+  # spliting date in training and test data
+  index.te = if (test.method == "last.season") which(matches$season == "2015/2016") else 
+    sample(seq_len(nrow(matches)),size=nrow(matches)*test.method)
+  
+  matches.train = matches[-index.te,]
+  matches.test = matches[index.te,]
+  
+  # create and train the model
+  model.svr <- svm(target ~., data = matches.train, epsilon = 0.6, cost=2)
  
-  predicted.goals <- predict(model.svr, data = matches)
+  # predict goals
+  predicted.goals <- predict(model.svr, data = matches.test)
   
-  rmse.svr <- sqrt((matches$target - predicted.goals)^2)
+  # calculate error end accuracy
   
-  result = vector(mode="list", length=3)
+  nrmse.svr <-  (mean((matches.test$target - predicted.goals)^2)/var(matches.test$target))^0.5
+  accuracy.svr <- mean(matches.test$target == round(predicted.goals))
+  
+  print(nrmse.svr)
+  print(accuracy.svr)
+  
+  result = vector(mode="list")
   result[["model"]] <- model.svr
   result[["predictions"]] <- predicted.goals
-  result[["accuracy"]] <- rmse.svr
+  result[["nrmse"]] <- nrmse.svr
+  result[["accuracy"]] <- accuracy.svr
    
   return (result) 
 }
 
-### Tuning the model will take a long time (depending on the parameters it took me 10 to 30 hours)
-tune.svregression.model <- function(matches, features.for.predicting) {
+### This function tunes the models parameter (cost and epsilon) and runs the model afterwards
+### depending on the column copied into "target" this function predicts the goals for the home or away team
+### The tuning of the model might take a long time (depending on the parameters it took me 10 to 30 hours)
+tune.svregression.model <- function(matches, features.for.predicting, test.method) {
 
   matches <- matches[,features.for.predicting]
-
-  tuneResult <- tune(svm, target ~., data = matches,
+  
+  # spliting date in training and test data
+  index.te = if (test.method == "last.season") which(matches$season == "2015/2016") else 
+    sample(seq_len(nrow(matches)),size=nrow(matches)*test.method)
+  
+  matches.train = matches[-index.te,]
+  matches.test = matches[index.te,]
+  
+  # tuning of the model
+  tuneResult <- tune(svm, target ~., data = matches.train,
                      ranges = list(epsilon = seq(0,1,0.2), cost = 2^(1:5))
   )
   
   print(tuneResult)
   
-  model.svr.tuned <- tuneResult$best.model
+  model.svr <- tuneResult$best.model
   
-  predicted.goals.tuned <- predict(tunedModel, data = matches) 
+  predicted.goals <- predict(tunedModel, data = matches.test) 
   
-  rmse.svr.tuned <-  sqrt((matches$target - predictions.optimized)^2)
+  rmse.svr <-  sqrt((matches.test$target - predicted.goals)^2)
+  accuracy.svr <- mean(matches.test$target == round(predicted.goals))
+  
+  print(rmse.svr)
+  print(accuracy.svr)
   
   result = vector(mode="list", length=3)
-  result[["model"]] <- model.svr.tuned
-  result[["predictions"]] <- predicted.goals.tuned
-  result[["accuracy"]] <- rmse.svr.tuned
+  result[["model"]] <- model.svr
+  result[["predictions"]] <- predicted.goals
+  result[["rmse"]] <- rmse.svr
+  result[["accuracy"]] <- accuracy.svr
   
   return (result) 
 }
