@@ -41,9 +41,6 @@ run.svr.regression <- function () {
   predicted.goals.home <- make.svregression.model (matches.for.training.home, features.for.predicting, 0.1)
   predicted.goals.away <- make.svregression.model (matches.for.training.away, features.for.predicting, 0.1)
   
-  View(predicted.goals.home)
-  View(predicted.goals.away)
-  
   return( c(predicted.goals.home, predicted.goals.away) )
 }
 
