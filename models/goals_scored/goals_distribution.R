@@ -20,9 +20,7 @@ d$Freq = NULL
 
 d$glm.n = c(0.28,0.59,0.11,0.02,0.00,0.00,0.00,0.00,0.00,0.00,0.00) # obtained from ./glm.R L62
 d$glm.p = c(0.26,0.63,0.08,0.02,0.00,0.00,0.00,0.00,0.00,0.00,0.00) # obtained from ./glm.R L62
-d$svr   = c(0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00) # TODO
-d$rf    = c(0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00) # TODO
-d$knn   = c(0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00) # TODO
+d$rf    = c(0.03,0.60,0.31,0.05,0.01,0.00,0.00,0.00,0.00,0.00,0.00) # obtained from ./random_forests.R L65
 
 # plot
 
@@ -30,6 +28,6 @@ d = melt(d,id='goals')
 ggplot(d,aes(x=goals,y=value,colour=variable,group=variable)) + 
   geom_line(size=2) + 
   ylab("frequency") + 
-  xlab("goals") + scale_x_discrete(limits = seq.int(0,10)) + 
+  xlab("goals") +
   theme_bw() + 
-  scale_colour_manual(name = "models", values=c("black","red","green","blue","yellow","orange"))
+  scale_colour_manual(name = "models", values=c("black","red","green","blue"))
