@@ -21,7 +21,7 @@ ggplot(data = result.for.graph, aes(x = x.graph)) +
   theme_bw() + 
   geom_line(aes(y = unlisted.CV.error.result)) +
   geom_point(aes(x = c(lowest.error.x), y = c(lowest.error.y), colour = c("red"))) + 
-  scale_color_manual(labels = c("lowest CV error - rbf kernel with C = 1"), values = c("red")) +
+  scale_color_manual(labels = c("rbf kernel, C = 1"), values = c("red")) +
 
   labs(x = "Iteration (kernel, C combination)", 
        y = "10-fold cross validation error", 

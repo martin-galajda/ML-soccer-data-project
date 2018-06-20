@@ -27,11 +27,13 @@ ggplot(data = result.for.graph, aes(x = x.graph)) +
   geom_point(aes(x = c(lowest.error.x), y = c(lowest.error.y), colour = c("red"))) + 
 
   geom_point(aes(x = c(most.common.sense.appropriate.x), y = c(most.common.sense.appropriate.y), colour = c("green"))) + 
-  scale_color_manual(labels = c("lowest CV error", "most common sense appropriate error"), values = c("red", "green")) +
+  scale_color_manual(labels = c("lowest CV error", "chosen CV error"), values = c("red", "green")) +
   labs(x = "Index of combination used", 
        y = "10-fold cross validation error", 
-       title = "Determining best feature subset for logistic using 10x10-fold CV",
-       colour = "")
+       title = "Determining best feature subset for logistic using exhaustive 10-fold CV",
+       colour = "Marks") + 
+  theme(legend.text=element_text(size=15))
+
 
 # Now examine greedy approach result
 load('./results/match_result/saved_Rdata/best_feature_subset_logistic_result.Rdata')

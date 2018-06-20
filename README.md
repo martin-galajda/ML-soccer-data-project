@@ -46,4 +46,7 @@ This is github repository for project for "Machine learning" class at FIB UPC.
 - The purpose of this directory is to contain all code that extracts usable data from the SQLite database.
 
 ## validation/
-- The purpose of this directory is to contain all code related to validation and selecting right models/features
+- The purpose of this directory is to contain all code related to validation and selecting right models/features. Some of the scripts compute CV-errors for different subset of features/ parameters and save them as Rdata (because it takes a lot of time to compute).
+
+## results/
+- The purpose of this directory is to observe obtained results (for match_result). It uses saved RData to present obtained results from cross-validation and test error from best model.
