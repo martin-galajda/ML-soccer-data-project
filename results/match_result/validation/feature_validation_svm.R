@@ -9,7 +9,7 @@ names.for.CV.error <- names(best.feature.subset.svm.result)[str_detect(names(bes
 CV.errors.greedy <- best.feature.subset.svm.result[names.for.CV.error]
 
 x.graph <- seq(1,length(CV.errors.greedy))
-result.for.graph.greedy <- data.frame(x.graph, unlist(CV.errors.greedy), names(CV.iterations.greedy))
+result.for.graph.greedy <- data.frame(x.graph, unlist(CV.errors.greedy))
 colnames(result.for.graph.greedy)[2] <- 'CV.error'
 
 x.point.best <- which(unlist(CV.errors.greedy) == best.feature.subset.svm.result$lowest.CV.error.seen)
