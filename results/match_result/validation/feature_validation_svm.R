@@ -8,10 +8,8 @@ best.feature.subset.svm.result <- values(best.feature.subset.svm.result)
 names.for.CV.error <- names(best.feature.subset.svm.result)[str_detect(names(best.feature.subset.svm.result), 'CV_error_')]
 CV.errors.greedy <- best.feature.subset.svm.result[names.for.CV.error]
 
-  
-  
 x.graph <- seq(1,length(CV.errors.greedy))
-result.for.graph.greedy <- data.frame(x.graph, unlist(CV.errors.greedy))
+result.for.graph.greedy <- data.frame(x.graph, unlist(CV.errors.greedy), names(CV.iterations.greedy))
 colnames(result.for.graph.greedy)[2] <- 'CV.error'
 
 x.point.best <- which(unlist(CV.errors.greedy) == best.feature.subset.svm.result$lowest.CV.error.seen)
@@ -25,8 +23,10 @@ ggplot(data = result.for.graph.greedy, aes(x = x.graph)) +
   scale_color_manual(labels = c("lowest CV error"), values = c("red")) +
   labs(x = "Iteration", 
        y = "10-fold cross validation error", 
-       title = "Determining best feature subset for logistic using greedy strategy and CV",
-       colour = "")
+       title = "Determining best feature subset for SVM using greedy strategy and CV",
+       colour = "") +
+  theme(plot.title = element_text(hjust = 0.5))
+
 
 # Observe best subset of features
 best.feature.subset.svm.result$best.subset.features

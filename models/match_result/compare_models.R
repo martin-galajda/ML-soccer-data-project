@@ -2,7 +2,6 @@ library(ggplot2)
 # This is main file for running different models for predicting match result
 # It uses functions defined in this directory to assess different models
 
-# TODO: Implement tree-based model?
 set.seed(123)
 
 # Load matches with all relevant features for predicting match result (win ratio, attack strength...)
@@ -52,14 +51,13 @@ cross.validated.best.features.for.svm <- c(
   'win.ratio.away.team.playing.away'
 )
 
-# TODO: Make ROC curve to assess best model
-
 cv.error.lda.model <- cross.validate.model(matches.for.training, make.lda.model, cross.validated.best.features.for.predicting, predict.type = "response")
 
 cv.error.qda.model <- cross.validate.model(matches.for.training, make.qda.model, cross.validated.best.features.for.predicting, predict.type = "response")
 
 cv.error.logistic.model <- cross.validate.model(matches.for.training, make.multinomial.logistic.regression.model, cross.validated.best.features.for.predicting, predict.type = "class")
 
+# cross-validated best k
 k = 296
 cv.error.knn.model <- cross.validate.model(matches.for.training, create.knn.model.builder(k = k), cross.validated.best.features.for.predicting, predict.type = "class")
 
@@ -75,14 +73,25 @@ CV.errors.values <- c(
 )
 
 df <- data.frame(CV.errors.models, CV.errors.values)
+df$CV.errors.values <- round(df$CV.errors.values, digits = 4)
 
 ggplot(data=df, aes(x=CV.errors.models, y=CV.errors.values, fill=CV.errors.models)) +
   geom_bar(stat="identity") +
-  coord_cartesian(ylim = c(0.43, 0.45)) + 
-  labs(x = "Model", 
-       y = "10-fold cross validation error", 
-       title = "Determining best model using CV-error",
+  geom_text(aes(label=CV.errors.values), vjust=-1) +
+  coord_cartesian(ylim = c(0.43, 0.452)) + 
+  labs(x = "", 
+       title = "10-fold cross validation error",
        fill = "Model") +
-  theme_minimal()
+  theme_minimal() +
+  theme(plot.title = element_text(size=22, hjust = 0.5),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.text.x = element_text(size=16),
+        axis.title.x = element_text(size=16, vjust = -5),
+        axis.title.y= element_blank(),
+        panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank()) +
+  guides(fill=FALSE)
 
 # here we can see that the best model is multinomial
