@@ -59,6 +59,13 @@ run.knn.regression <- function () {
   ## TUNE AWAY
   #prediction.away <- tune.knn.model (matches.for.training.away, features.for.predicting, "last.season", 1:300)
 
+  #distribution
+  home.exact = round(prediction.home[["predictions"]])
+  away.exact = round(prediction.away[["predictions"]] )
+  d = data.frame(table(c(home.exact,away.exact)))
+  d$dist = d$Freq/sum(d$Freq) ######################## use this value for goals_distribution
+  
+  #prepare results
   prediction = vector(mode="list")
   prediction[["model.home"]] <- prediction.home[["model"]] 
   prediction[["model.away"]] <- prediction.home[["model"]] 
