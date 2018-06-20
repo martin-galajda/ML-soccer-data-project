@@ -64,4 +64,5 @@ This is github repository for project for "Machine learning" class at FIB UPC.
 - `results/match_results/validation/*.R` - scripts contain interpretation of results achieved by running scripts from `validation/match_result.R` scripts. They use saved RData from `results/match_results/saved_Rdata` directory.
 - `results/match_result/test_error_best_model.R` - script computing test error for best model for predicting match results
 - `results/match_result/compare_models.R` - script comparing different models for predicting match result and observing their respective CV-errors.
-
+- `analyze_players.R` - full code for Player Analysis section
+- `models/goals_scored/*.R` - self-contained scripts to tune and train the different number of goals models including the baseline + `goals_distribution.R` plot script.
