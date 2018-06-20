@@ -21,6 +21,7 @@ d$Freq = NULL
 d$glm.n = c(0.28,0.59,0.11,0.02,0.00,0.00,0.00,0.00,0.00,0.00,0.00) # obtained from ./glm.R L62
 d$glm.p = c(0.26,0.63,0.08,0.02,0.00,0.00,0.00,0.00,0.00,0.00,0.00) # obtained from ./glm.R L62
 d$rf    = c(0.03,0.60,0.31,0.05,0.01,0.00,0.00,0.00,0.00,0.00,0.00) # obtained from ./random_forests.R L65
+d$knn   = c(0.00,0.68,0.28,0.04,0.00,0.00,0.00,0.00,0.00,0.00,0.00) # obtained from ./knn.R L68
 
 # plot
 
@@ -30,4 +31,4 @@ ggplot(d,aes(x=goals,y=value,colour=variable,group=variable)) +
   ylab("frequency") + 
   xlab("goals") +
   theme_bw() + 
-  scale_colour_manual(name = "models", values=c("black","red","green","blue"))
+  scale_colour_manual(name = "models", values=c("black","red","green","blue","orange"))
