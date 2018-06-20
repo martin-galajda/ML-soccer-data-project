@@ -60,7 +60,7 @@ This is github repository for project for "Machine learning" class at FIB UPC.
 - run the code
 
 ## Interesting scripts to run
-- `data_conversion\X.R` generates necessary `data\db_X.CSV` database from original `data/database.sqlite`. (downloadable at [Kaggle](https://www.kaggle.com/hugomathien/soccer))
+- `data_conversion\X.R` generates necessary `data\db_X.CSV` database from original `data/database.sqlite`.
 - `validation/match_result/*.R` - scripts contain logic for feature selection, tuning parameters for different models. However, execution time is very big for some scripts (therefore they store results in `results/` directory after computing).
 - `results/match_results/validation/*.R` - scripts contain interpretation of results achieved by running scripts from `validation/match_result.R` scripts. They use saved RData from `results/match_results/saved_Rdata` directory.
 - `results/match_result/test_error_best_model.R` - script computing test error for best model for predicting match results
