@@ -50,3 +50,19 @@ This is github repository for project for "Machine learning" class at FIB UPC.
 
 ## results/
 - The purpose of this directory is to observe obtained results (for match_result). It uses saved RData to present obtained results from cross-validation and test error from best model.
+
+# How to run
+
+## Requirements
+- R environment (RStudio preferably)
+
+## Steps
+- set root of the project as working directory (some scripts require that)
+- run the code
+
+## Interesting scripts to run
+- `validation/match_result/*.R` - scripts contain logic for feature selection, tuning parameters for different models. However, execution time is very big for some scripts (therefore they store results in `results/` directory after computing).
+- `results/match_results/validation/*.R` - scripts contain interpretation of results achieved by running scripts from `validation/match_result.R` scripts. They use saved RData from `results/match_results/saved_Rdata` directory.
+- `results/match_result/test_error_best_model.R` - script computing test error for best model for predicting match results
+- `results/match_result/compare_models.R` - script comparing different models for predicting match result and observing their respective CV-errors.
+
