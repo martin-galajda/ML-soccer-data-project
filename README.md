@@ -9,7 +9,7 @@ This is github repository for project for "Machine learning" class at FIB UPC.
 - Aitor Ortiz de Latierro
 
 # Guidelines working with the projects
-- ⚠️ Make sure that when working with R scripts, working directory is set to the root of the project (all R scripts should follow this convention! 🙏)
+- ⚠️ When working with R scripts, working directory is set to the project root (all code should follow this convention! 🙏)
 
 # Directory structure
 
@@ -20,8 +20,7 @@ This is github repository for project for "Machine learning" class at FIB UPC.
   - predicting match result (win, tie, loss)
 - ## models/goals_scored
   - predicting goals scored
-- ## models/match_win (yes / no)
-  - predict if home team will win or no
+
 ## loaders/
 - The purpose of this directory is to define functions which will load different data with different features (used in models). Possibly uses precomputed features which take a bit time to compute.
 
