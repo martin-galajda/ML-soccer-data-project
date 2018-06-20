@@ -4,7 +4,7 @@ library(e1071)
 run.svregression <- function () {
   
   ## Note: If matches.merged.all.features is not already loaded to your environment, uncomment the following line
-  ##       matches.merged.all.features = load.matches.with.all.features.for.match.result()
+  matches.merged.all.features = load.matches.with.all.features.for.match.result()
   
   ## Select features for predicting
   features.for.keeping <- c(
@@ -52,10 +52,10 @@ run.svregression <- function () {
   prediction.away <- make.svregression.model (matches.for.training.away, features.for.predicting, "last.season")
   
   ## TUNE HOME
-  #prediction.home <- tune.svregression.model (matches.for.training.home, features.for.predicting, 0.1)
+  #prediction.home <- tune.svregression.model (matches.for.training.home, features.for.predicting, "last.season")
   
   ## TUNE AWAY
-  #prediction.away <- tune.svregression.model (matches.for.training.away, features.for.predicting, 0.1)
+  #prediction.away <- tune.svregression.model (matches.for.training.away, features.for.predicting, "last.season")
   
   prediction = vector(mode="list")
   prediction[["model.home"]] <- prediction.home[["model"]] 
@@ -77,11 +77,11 @@ run.svregression <- function () {
 ### depending on the column copied into "target" this function predicts the goals for the home or away team
 make.svregression.model <- function(matches, features.for.predicting, test.method) {
   
-  matches <- matches[,features.for.predicting]
-  
   ## spliting date in training and test data
   index.te = if (test.method == "last.season") which(matches$season == "2015/2016") else 
     sample(seq_len(nrow(matches)),size=nrow(matches)*test.method)
+  
+  matches <- matches[,features.for.predicting]
   
   matches.train = matches[-index.te,]
   matches.test = matches[index.te,]
@@ -93,8 +93,8 @@ make.svregression.model <- function(matches, features.for.predicting, test.metho
   predicted.goals <- predict(model.svr, data = matches.test)
   
   ## calculate error end accuracy
-  mse.svr <- mean((matches.test$target - predicted.goals)^2)
-  nrmse.svr <-  (mean((matches.test$target - predicted.goals)^2)/var(matches.test$target))^0.5
+  mse.svr <-  mean((matches.test$target - predicted.goals)^2)
+  nrmse.svr <-  (mean((matches.test$target - predicted.goals)^2)/var(matches$target))^0.5
   accuracy.svr <- mean(matches.test$target == round(predicted.goals))
   
   print(paste0("mse:       ", mse.svr))

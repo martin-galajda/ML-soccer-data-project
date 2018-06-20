@@ -5,7 +5,7 @@ library(BBmisc)
 run.knn.regression <- function () {
   
   ## Note: If matches.merged.all.features is not already loaded to your environment, uncomment the following line
-  ## matches.merged.all.features = load.matches.with.all.features.for.match.result()
+  matches.merged.all.features = load.matches.with.all.features.for.match.result()
   
   ## Select features for predicting
   features.for.keeping <- c(
@@ -85,15 +85,15 @@ run.knn.regression <- function () {
 ###     The function returns a "result" object containing the model, predicted goals, nrmse and accuracy  
 make.knn.model <- function(matches, features.for.predicting, test.method, k = 1) {
   
-  matches <- matches[,features.for.predicting]
-  
   ## spliting date in training and test data
   index.te = if (test.method == "last.season") which(matches$season == "2015/2016") else 
     sample(seq_len(nrow(matches)),size=nrow(matches)*test.method)
+
+  matches <- matches[,features.for.predicting]
   
   matches.train = matches[-index.te,]
   matches.test = matches[index.te,]
-  
+
   ## create and train the model
   pred_001 = FNN::knn.reg(train = matches.train[,-which(names(matches.train)=="target")], test = matches.test[,-which(names(matches.test)=="target")], y = matches.train$target, k = k)
   predicted.goals <- pred_001$pred
