@@ -39,20 +39,36 @@ run.svregression <- function () {
     'win.ratio.away.team.playing.away'
   )
   
+  ## Ensure reproducable results
+  set.seed(101)
+  
   ## Note: Comment and uncomment the following lines depending on whether predicting or tuning is required and
   ##       whether home or away goals shall be predicted
   
   ## PREDICT HOME
-  prediction <- make.svregression.model (matches.for.training.home, features.for.predicting, 0.1)
+  prediction.home <- make.svregression.model (matches.for.training.home, features.for.predicting, "last.season")
   
   ## PREDICT AWAY
-  #prediction <- make.svregression.model (matches.for.training.away, features.for.predicting, 0.1)
+  prediction.away <- make.svregression.model (matches.for.training.away, features.for.predicting, "last.season")
   
   ## TUNE HOME
-  #prediction <- tune.svregression.model (matches.for.training.home, features.for.predicting, 0.1)
+  #prediction.home <- tune.svregression.model (matches.for.training.home, features.for.predicting, 0.1)
   
   ## TUNE AWAY
-  #prediction <- tune.svregression.model (matches.for.training.away, features.for.predicting, 0.1)
+  #prediction.away <- tune.svregression.model (matches.for.training.away, features.for.predicting, 0.1)
+  
+  prediction = vector(mode="list")
+  prediction[["model.home"]] <- prediction.home[["model"]] 
+  prediction[["model.away"]] <- prediction.home[["model"]] 
+  prediction[["predictions.home"]] <- prediction.home[["predictions"]]
+  prediction[["predictions.away"]] <- prediction.away[["predictions"]] 
+  prediction[["mse.avg"]] <- (prediction.home[["mse"]]+prediction.away[["mse"]])/2
+  prediction[["nrmse.avg"]] <- (prediction.home[["nrmse"]]+prediction.away[["nrmse"]])/2
+  prediction[["accuracy.avg"]] <- (prediction.home[["accuracy"]]+prediction.away[["accuracy"]])/2
+  
+  print(paste0("mse (avg):       ", prediction[["mse.avg"]]))
+  print(paste0("nrmse (avg):     ", prediction[["nrmse.avg"]]))
+  print(paste0("accuracy (avg):  ", prediction[["accuracy.avg"]]))
   
   return( prediction )
 }
@@ -77,15 +93,18 @@ make.svregression.model <- function(matches, features.for.predicting, test.metho
   predicted.goals <- predict(model.svr, data = matches.test)
   
   ## calculate error end accuracy
+  mse.svr <- mean((matches.test$target - predicted.goals)^2)
   nrmse.svr <-  (mean((matches.test$target - predicted.goals)^2)/var(matches.test$target))^0.5
   accuracy.svr <- mean(matches.test$target == round(predicted.goals))
   
+  print(paste0("mse:       ", mse.svr))
   print(paste0("nrmse:     ", nrmse.svr))
   print(paste0("accuracy:  ", accuracy.svr))
   
   result = vector(mode="list")
   result[["model"]] <- model.svr
   result[["predictions"]] <- predicted.goals
+  result[["mse"]] <- mse.svr
   result[["nrmse"]] <- nrmse.svr
   result[["accuracy"]] <- accuracy.svr
    
@@ -117,18 +136,21 @@ tune.svregression.model <- function(matches, features.for.predicting, test.metho
   model.svr <- tuneResult$best.model
   
   ## predict goals
-  predicted.goals <- predict(tunedModel, data = matches.test) 
+  predicted.goals <- predict(model.svr, data = matches.test) 
   
   ## calculate error end accuracy
-  nrmse.svr <-  (mean((matches.test$target - predicted.goals)^2)/var(matches.test$target))^0.5
+  mse.svr <- mean((matches.test$target - predicted.goals)^2)
+  nrmse.svr <-  (mean((matches.test$target - predicted.goals)^2)/var(matches$target))^0.5
   accuracy.svr <- mean(matches.test$target == round(predicted.goals))
   
+  print(paste0("mse:       ", mse.svr))
   print(paste0("nrmse:     ", nrmse.svr))
   print(paste0("accuracy:  ", accuracy.svr))
   
   result = vector(mode="list")
   result[["model"]] <- model.svr
   result[["predictions"]] <- predicted.goals
+  result[["mse"]] <- mse.svr
   result[["nrmse"]] <- nrmse.svr
   result[["accuracy"]] <- accuracy.svr
   

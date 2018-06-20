@@ -41,20 +41,36 @@ run.knn.regression <- function () {
     'win.ratio.away.team.playing.away'
   )
   
+  ## Ensure reproducable results
+  set.seed(101)
+  
   ## Note: Comment and uncomment the following lines depending on whether predicting or tuning is required and
   ##       whether home or away goals shall be predicted
   
   ## PREDICT HOME
-  #prediction <- make.knn.model (matches.for.training.home, features.for.predicting, 0.1, 107)
+  prediction.home <- make.knn.model (matches.for.training.home, features.for.predicting, "last.season", 120)
   
   ## PREDICT AWAY
-  #prediction <- make.knn.model (matches.for.training.away, features.for.predicting, 0.1, 175)
+  prediction.away <- make.knn.model (matches.for.training.away, features.for.predicting, "last.season", 163)
   
   ## TUNE HOME
-  #prediction <- tune.knn.model (matches.for.training.home, features.for.predicting, 0.1, 100:200)
+  #prediction.home <- tune.knn.model (matches.for.training.home, features.for.predicting, "last.season", 1:300)
   
   ## TUNE AWAY
-  prediction <- tune.knn.model (matches.for.training.away, features.for.predicting, 0.1, 1:300)
+  #prediction.away <- tune.knn.model (matches.for.training.away, features.for.predicting, "last.season", 1:300)
+
+  prediction = vector(mode="list")
+  prediction[["model.home"]] <- prediction.home[["model"]] 
+  prediction[["model.away"]] <- prediction.home[["model"]] 
+  prediction[["predictions.home"]] <- prediction.home[["predictions"]]
+  prediction[["predictions.away"]] <- prediction.away[["predictions"]] 
+  prediction[["mse.avg"]] <- (prediction.home[["mse"]]+prediction.away[["mse"]])/2
+  prediction[["nrmse.avg"]] <- (prediction.home[["nrmse"]]+prediction.away[["nrmse"]])/2
+  prediction[["accuracy.avg"]] <- (prediction.home[["accuracy"]]+prediction.away[["accuracy"]])/2
+  
+  print(paste0("mse (avg):       ", prediction[["mse.avg"]]))
+  print(paste0("nrmse (avg):     ", prediction[["nrmse.avg"]]))
+  print(paste0("accuracy (avg):  ", prediction[["accuracy.avg"]]))
   
   return(prediction)
 }
@@ -83,15 +99,18 @@ make.knn.model <- function(matches, features.for.predicting, test.method, k = 1)
   predicted.goals <- pred_001$pred
   
   ## calculate nrmse and accuracy
-  nrmse.knn <-  (mean((matches.test$target - predicted.goals)^2)/var(matches.test$target))^0.5
+  mse.knn <-  mean((matches.test$target - predicted.goals)^2)
+  nrmse.knn <-  (mean((matches.test$target - predicted.goals)^2)/var(matches$target))^0.5
   accuracy.knn <- mean(matches.test$target == round(predicted.goals))
   
+  print(paste0("mse:       ", mse.knn))
   print(paste0("nrmse:     ", nrmse.knn))
   print(paste0("accuracy:  ", accuracy.knn))
   
   result = vector(mode="list")
   result[["model"]] <- pred_001
   result[["predictions"]] <- predicted.goals
+  result[["mse"]] <- mse.knn
   result[["nrmse"]] <- nrmse.knn
   result[["accuracy"]] <- accuracy.knn
   
@@ -134,15 +153,18 @@ tune.knn.model <- function(matches, features.for.predicting, test.method, k.valu
   predicted.goals <- pred$pred
   
   ## calculate nrmse and accuracy
+  mse.knn <-  mean((matches.test$target - predicted.goals)^2)
   nrmse.knn <-  (mean((matches.test$target - predicted.goals)^2)/var(matches.test$target))^0.5
   accuracy.knn <- mean(matches.test$target == round(predicted.goals))
   
+  print(paste0("mse:       ", mse.knn))  
   print(paste0("nrmse:     ", nrmse.knn))
   print(paste0("accuracy:  ", accuracy.knn))
   
   result = vector(mode="list")
   result[["model"]] <- pred
   result[["predictions"]] <- predicted.goals
+  result[["mse"]] <- mse.knn
   result[["nrmse"]] <- nrmse.knn
   result[["accuracy"]] <- accuracy.knn
   result[["best_k"]] <- best.k
